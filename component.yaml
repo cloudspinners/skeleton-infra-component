@@ -1,0 +1,18 @@
+---
+estate: vsquad
+component: noodle
+domain_name: vtest.info
+region: eu-west-1
+
+# Cross-deployment things
+delivery_statebucket_name: "state-%{hiera('estate')}-%{hiera('component')}-delivery"
+delivery_statebucket_is_encrypted: "true"
+
+# Deployment instance things
+deployment_identifier: "UNKNOWN"
+deployment_statebucket_name: "state-%{hiera('estate')}-%{hiera('component')}-deployment-%{hiera('deployment_identifier')}"
+deployment_statebucket_is_encrypted: "true"
+
+public_domain_name: "%{hiera('deployment_identifier')}.%{hiera('domain_name')}"
+private_domain_name: "%{hiera('deployment_identifier')}.private.%{hiera('domain_name')}"
+private_network_cidr: "10.0.0.0/16"

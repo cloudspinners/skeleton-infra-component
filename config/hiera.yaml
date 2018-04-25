@@ -1,0 +1,15 @@
+---
+:backends:
+  - "overrides"
+  - "env"
+  - "yaml"
+:logger: "noop"
+:yaml:
+  :datadir: "."
+:hierarchy:
+  - "component/delivery-%{delivery}/delivery"
+  - "component/deployment-%{deployment}/deployment"
+  - "role-%{role}/role"
+  - "role-%{role_delivery}-delivery/delivery"
+  - "component-local"
+  - "component"

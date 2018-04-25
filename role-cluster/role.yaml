@@ -1,0 +1,24 @@
+---
+vars:
+  component: "%{hiera('component')}"
+  deployment_identifier: "%{hiera('deployment_identifier')}"
+  domain_name: "%{hiera('domain_name')}"
+  private_domain_name: "%{hiera('private_domain_name')}"
+  private_network_cidr: "%{hiera('private_network_cidr')}"
+
+  region: "%{hiera('region')}"
+  state_bucket_name: "%{hiera('estate')}-delivery-%{hiera('component')}"
+  
+  cluster_instance_ssh_public_key_path: "%{hiera('cluster_instance_ssh_public_key_path')}"
+  cluster_instance_type: "%{hiera('cluster_instance_type')}"
+
+backend_config:
+  region: "%{hiera('region')}"
+  bucket: "%{hiera('deployment_statebucket_name')}"
+  key: "deployment-%{hiera('deployment_identifier')}/cluster.tfstate"
+  encrypt: "%{hiera('deployment_statebucket_is_encrypted')}"
+
+cluster_state_bucket_region: "%{hiera('region')}"
+cluster_state_bucket_name: "%{hiera('state_bucket_name')}"
+cluster_state_bucket_is_encrypted: "true"
+cluster_state_key: "cluster/deployments/%{hiera('deployment_identifier')}.tfstate"
