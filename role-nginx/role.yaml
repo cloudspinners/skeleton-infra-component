@@ -1,0 +1,30 @@
+---
+vars:
+  component: "%{hiera('component')}"
+  deployment_identifier: "%{hiera('deployment_identifier')}"
+  estate: "%{hiera('estate')}"
+  region: "%{hiera('region')}"
+  version_number: "%{hiera('version_number')}"
+
+  cluster_state_bucket_region: "%{hiera('region')}"
+  cluster_state_bucket_name: "%{hiera('deployment_statebucket_name')}"
+  cluster_state_bucket_is_encrypted: "%{hiera('deployment_statebucket_is_encrypted')}"
+  cluster_state_key: "deployment-%{hiera('deployment_identifier')}/cluster.tfstate"
+
+  nginx_desired_count: "3"
+  http_port: "80"
+  ssh_port: "2222"
+
+  nginx_image_repository_state_bucket_region: "%{hiera('region')}"
+  nginx_image_repository_state_bucket_name: "%{hiera('delivery_statebucket_name')}"
+  nginx_image_repository_state_bucket_is_encrypted: "true"
+  nginx_image_repository_state_key: "delivery/role-nginx/repository.tfstate"
+
+  private_network_cidr: "%{hiera('private_network_cidr')}"
+
+backend_config:
+  region: "%{hiera('region')}"
+  bucket: "%{hiera('deployment_statebucket_name')}"
+  key: "deployment-%{hiera('deployment_identifier')}/nginx_service.tfstate"
+  encrypt: "%{hiera('deployment_statebucket_is_encrypted')}"
+
