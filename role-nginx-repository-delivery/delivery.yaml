@@ -1,0 +1,10 @@
+---
+vars:
+  region: "%{hiera('region')}"
+  repository_name: "%{hiera('estate')}/%{hiera('component')}/nginx"
+
+backend_config:
+  region: "%{hiera('region')}"
+  bucket: "%{hiera('delivery_statebucket_name')}"
+  key: "delivery/role-nginx/repository.tfstate"
+  encrypt: "%{hiera('delivery_statebucket_is_encrypted')}"
