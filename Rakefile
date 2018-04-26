@@ -217,10 +217,18 @@ namespace :deployment do
 
       t.vars = lambda do |args|
         configuration
-            .for_overrides(args)
+            .for_overrides(
+                args.to_hash
+                    .merge(version_number: version.to_docker_tag))
             .for_scope(role: 'nginx')
             .vars
       end
+
+      puts "DEBUG: tfvars:"
+      puts "---------------------------------------"
+      puts "#{t.vars.call({}).to_yaml}"
+      puts "---------------------------------------"
+
     end
   end
 
