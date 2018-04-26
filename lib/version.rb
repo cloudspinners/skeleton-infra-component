@@ -7,9 +7,8 @@ class Version
     metadata = "#{git_sha}"
 
     base_version = File.exist?(path) ?
-        File.open(path) { |f| f.read } :
+        File.open(path) { |f| f.read }.chomp :
         '0.0.0'
-
     Version.new("#{base_version}+#{metadata}")
   end
 

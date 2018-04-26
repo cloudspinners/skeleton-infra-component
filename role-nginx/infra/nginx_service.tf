@@ -1,6 +1,6 @@
 
 data "template_file" "nginx_task_definition" {
-  template = "${file("${path.root}/container-definitions/nginx_service.json.tpl")}"
+  template = "${file("${path.root}/container-definitions/nginx_service_task_definition.json")}"
 
   vars {
     name = "nginx"

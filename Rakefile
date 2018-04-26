@@ -23,11 +23,24 @@ task :deployment_plan => [
   :'deployment:nginx:plan'
 ]
 
-desc 'Provision a deployment of everything in the component'
-task :deployment => [
+desc 'Provision or update a deployment of everything in the component'
+task :deployment_up => [
   :'deployment:statebucket:provision',
   :'deployment:cluster:provision',
   :'deployment:nginx:provision'
+]
+
+desc 'Destroy everything in the deployment that isn\'t persistent'
+task :deployment_down => [
+  :'deployment:nginx:destroy',
+  :'deployment:cluster:destroy'
+]
+
+desc 'Completely destroy everything in the deployment'
+task :deployment_nuke => [
+  :'deployment:nginx:destroy',
+  :'deployment:cluster:destroy',
+  :'deployment:statebucket:destroy'
 ]
 
 desc 'Show the plan for provisioning all of the delivery infrastructure for the component'
@@ -37,13 +50,13 @@ task :delivery_plan => [
 ]
 
 desc 'Provision all of the delivery infrastructure for the component'
-task :delivery => [
+task :delivery_up => [
   :'delivery:statebucket:provision',
   :'delivery:nginx:repository:provision'
 ]
 
 
-namespace :images do
+namespace :image do
 
   namespace "nginx" do
     RakeDocker.define_image_tasks do |t|
@@ -121,10 +134,10 @@ namespace :images do
           configuration
               .for_overrides(args)
               .deployment_identifier
-      Rake::Task["service:nginx:clean"].invoke(deployment_identifier)
-      Rake::Task["service:nginx:build"].invoke(deployment_identifier)
-      Rake::Task["service:nginx:tag"].invoke(deployment_identifier)
-      Rake::Task["service:nginx:push"].invoke(deployment_identifier)
+      Rake::Task["image:nginx:clean"].invoke(deployment_identifier)
+      Rake::Task["image:nginx:build"].invoke(deployment_identifier)
+      Rake::Task["image:nginx:tag"].invoke(deployment_identifier)
+      Rake::Task["image:nginx:push"].invoke(deployment_identifier)
     end
 
   end
