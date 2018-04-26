@@ -106,12 +106,12 @@ data "aws_iam_policy_document" "ci_limited" {
 }
 
 resource "aws_iam_user" "ci_limited" {
-  name = "ci-limited"
+  name = "ci-limited-nginx-${var.component}-${var.deployment_identifier}-${var.estate}"
   path = "/infra/"
 }
 
 resource "aws_iam_user_policy" "ci_limited" {
-  name = "ci-limited"
+  name = "ci-limited-nginx-${var.component}-${var.deployment_identifier}-${var.estate}"
   user = "${aws_iam_user.ci_limited.name}"
   policy = "${data.aws_iam_policy_document.ci_limited.json}"
 }
