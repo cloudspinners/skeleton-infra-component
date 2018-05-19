@@ -11,7 +11,9 @@
 # Build
 vendor/
 build/
+work/
 dist/
+state/
 
 # OS
 .DS_Store

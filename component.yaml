@@ -5,12 +5,12 @@ domain_name: cloudspin.io
 region: eu-west-1
 
 # Cross-deployment things
-delivery_statebucket_name: "state-%{hiera('estate')}-%{hiera('component')}-delivery"
+# Brittle. Would be nice if I could figure out how to inject these from the Rakefile
+delivery_statebucket_name: "delivery-state-%{hiera('estate')}-%{hiera('component')}"
 delivery_statebucket_is_encrypted: "true"
 
 # Deployment instance things
-deployment_identifier: "UNKNOWN"
-deployment_statebucket_name: "state-%{hiera('estate')}-%{hiera('component')}-deployment-%{hiera('deployment_identifier')}"
+deployment_statebucket_name: "deployment-state-%{hiera('estate')}-%{hiera('component')}-%{hiera('deployment_identifier')}"
 deployment_statebucket_is_encrypted: "true"
 
 public_domain_name: "%{hiera('deployment_identifier')}.%{hiera('domain_name')}"

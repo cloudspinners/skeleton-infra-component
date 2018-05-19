@@ -8,16 +8,18 @@ require_relative 'lib/terraform_output'
 require_relative 'lib/version'
 
 configuration = Confidante.configuration
+delivery_statebucket_name = "delivery-state-#{configuration.estate}-#{configuration.component}"
+deployment_statebucket_name = "deployment-state-#{configuration.estate}-#{configuration.component}-#{configuration.deployment_identifier}"
 
-delivery_statebucket = {
+delivery_statebucket_config = {
   :region => configuration.region,
-  :bucket=> "delivery-state-#{configuration.estate}-#{configuration.component}",
+  :bucket=> delivery_statebucket_name,
   :encrypt => "true"
 }
 
-deployment_statebucket = {
+deployment_statebucket_config = {
   :region => configuration.region,
-  :bucket=> "deployment-state-#{configuration.estate}-#{configuration.component}-#{configuration.deployment_identifier}",
+  :bucket=> deployment_statebucket_name,
   :encrypt => "true"
 }
 
@@ -53,7 +55,7 @@ namespace :delivery do
         puts "============================="
 
 
-        t.backend_config = delivery_statebucket.clone
+        t.backend_config = delivery_statebucket_config.clone
         t.backend_config[:key] = "state/#{delivery_stack}.tfstate"
         puts "backend:"
         puts "---------------------------------------"
@@ -128,12 +130,14 @@ namespace :deployment do
         puts "deployment/#{deployment_stack}"
         puts "============================="
 
-        t.backend_config = {
-          :region => stack_configuration.region,
-          :bucket=> "deployment-state-#{stack_configuration.estate}-#{stack_configuration.component}-#{stack_configuration.deployment_identifier}",
-          :key => "state/#{deployment_stack}.tfstate",
-          :encrypt => "true"
-        }
+        if deployment_stack == 'statebucket'
+          t.backend_config = delivery_statebucket_config.clone
+          t.backend_config[:key] = "state/deployment/#{configuration.deployment_identifier}/#{deployment_stack}.tfstate"
+        else
+          t.backend_config = deployment_statebucket_config.clone
+          t.backend_config[:key] = "state/#{deployment_stack}.tfstate"
+        end
+
         puts "backend:"
         puts "---------------------------------------"
         puts "#{t.backend_config.to_yaml}"
