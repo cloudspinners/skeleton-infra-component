@@ -7,9 +7,8 @@
 :yaml:
   :datadir: "."
 :hierarchy:
-  - "component/delivery-%{delivery}/delivery"
-  - "component/deployment-%{deployment}/deployment"
-  - "role-%{role}/role"
-  - "role-%{role_delivery}-delivery/delivery"
+  - "deployment/%{deployment}/stack"
+  - "delivery/%{delivery}/stack"
+  - "account/%{account}/stack"
   - "component-local"
   - "component"

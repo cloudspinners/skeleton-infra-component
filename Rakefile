@@ -1,6 +1,7 @@
 require 'confidante'
 require 'rake_terraform'
 require 'rake_docker'
+require 'rake/clean'
 
 require_relative 'lib/paths'
 require_relative 'lib/terraform_output'
@@ -10,272 +11,144 @@ configuration = Confidante.configuration
 version = Version.from_file('build/version')
 
 RakeTerraform.define_installation_tasks(
-    path: File.join(Dir.pwd, 'vendor', 'terraform'),
-    version: '0.11.7')
+  path: File.join(Dir.pwd, 'vendor', 'terraform'),
+  version: '0.11.7'
+)
+
+CLEAN.include('build')
+CLEAN.include('work')
+CLEAN.include('dist')
+CLOBBER.include('vendor')
 
 
-task :default => [ :deploy_plan ]
 
-desc 'Show the plan for provisioning a deployment of everything in the component'
-task :deployment_plan => [
-  :'deployment:statebucket:plan',
-  :'deployment:cluster:plan',
-  :'deployment:nginx:plan'
-]
+namespace :delivery do
 
-desc 'Provision or update a deployment of everything in the component'
-task :deployment_up => [
-  :'deployment:statebucket:provision',
-  :'deployment:cluster:provision',
-  :'deployment:nginx:provision'
-]
+  Dir.entries('delivery').select { |entry|
+    File.directory? File.join('delivery',entry) and !(entry =='.' || entry == '..')
+  }.each { |delivery_stack|
 
-desc 'Destroy everything in the deployment that isn\'t persistent'
-task :deployment_down => [
-  :'deployment:nginx:destroy',
-  :'deployment:cluster:destroy'
-]
+    namespace delivery_stack do
+      RakeTerraform.define_command_tasks do |t|
+        t.configuration_name = "delivery-#{delivery_stack}"
+        t.source_directory = "delivery/#{delivery_stack}/infra"
+        t.work_directory = 'work'
 
-desc 'Completely destroy everything in the deployment'
-task :deployment_nuke => [
-  :'deployment:nginx:destroy',
-  :'deployment:cluster:destroy',
-  :'deployment:statebucket:destroy'
-]
+        puts "============================="
+        puts "delivery/#{delivery_stack}"
+        puts "============================="
 
-desc 'Show the plan for provisioning all of the delivery infrastructure for the component'
-task :delivery_plan => [
-  :'delivery:statebucket:plan',
-  :'delivery:nginx:repository:plan'
-]
-
-desc 'Provision all of the delivery infrastructure for the component'
-task :delivery_up => [
-  :'delivery:statebucket:provision',
-  :'delivery:nginx:repository:provision'
-]
-
-
-namespace :image do
-
-  namespace "nginx" do
-    RakeDocker.define_image_tasks do |t|
-      t.argument_names = [:deployment_identifier]
-
-      t.image_name = "nginx"
-      t.work_directory = 'build/images'
-
-      t.copy_spec = [
-        "role-nginx/src/Dockerfile",
-        "role-nginx/src/html"
-      ]
-
-      t.create_spec = [
-        {content: version.to_s, to: 'VERSION'},
-        {content: version.to_docker_tag, to: 'TAG'}
-      ]
-
-      estate = configuration
-          .for_overrides({})
-          .for_scope(role_delivery: 'nginx-repository')
-          .estate
-      component = configuration
-          .for_overrides({})
-          .for_scope(role_delivery: 'nginx-repository')
-          .component
-
-      t.repository_name = "#{estate}/#{component}/nginx"
-
-      t.repository_url = lambda do |args|
-        backend_config =
-            configuration
-                .for_overrides(args)
-                .for_scope(role_delivery: 'nginx-repository')
-                .backend_config
-
-        TerraformOutput.for(
-            name: 'repository_url',
-            source_directory: "role-nginx-repository-delivery/infra",
-            work_directory: 'build',
-            backend_config: backend_config)
-      end
-
-      t.credentials = lambda do |args|
-        backend_config =
-            configuration
-                .for_overrides(args)
-                .for_scope(role_delivery: 'nginx-repository')
-                .backend_config
-
-        region =
-            configuration
-                .for_overrides(args)
-                .for_scope(role_delivery: 'nginx-repository')
-                .region
-
-        authentication_factory = RakeDocker::Authentication::ECR.new do |c|
-          c.region = region
-          c.registry_id = TerraformOutput.for(
-              name: 'registry_id',
-              source_directory: "role-nginx-repository-delivery/infra",
-              work_directory: 'build',
-              backend_config: backend_config)
-        end
-
-        authentication_factory.call
-      end
-
-      t.tags = [version.to_docker_tag, 'latest']
-    end
-
-    desc 'Build and push custom image'
-    task :publish, [:deployment_identifier] do |_, args|
-      deployment_identifier =
+        t.backend_config = lambda do |args|
           configuration
               .for_overrides(args)
-              .deployment_identifier
-      Rake::Task["image:nginx:clean"].invoke(deployment_identifier)
-      Rake::Task["image:nginx:build"].invoke(deployment_identifier)
-      Rake::Task["image:nginx:tag"].invoke(deployment_identifier)
-      Rake::Task["image:nginx:push"].invoke(deployment_identifier)
-    end
+              .for_scope(delivery: delivery_stack)
+              .backend_config
+        end
+        puts "backend:"
+        puts "---------------------------------------"
+        puts "#{t.backend_config.call({}).to_yaml}"
+        puts "---------------------------------------"
 
-  end
+        t.vars = lambda do |args|
+          configuration
+              .for_overrides(args)
+              .for_scope(delivery: delivery_stack)
+              .vars
+        end
+        puts "tfvars:"
+        puts "---------------------------------------"
+        puts "#{t.vars.call({}).to_yaml}"
+        puts "---------------------------------------"
+      end
+
+    end
+  }
 end
 
 
 namespace :deployment do
 
-  namespace :statebucket do
-    RakeTerraform.define_command_tasks do |t|
-      t.configuration_name = 'deployment-statebucket'
-      t.source_directory = 'component/deployment-statebucket'
-      t.work_directory = 'build'
+  Dir.entries('deployment').select { |entry|
+    File.directory? File.join('deployment',entry) and !(entry =='.' || entry == '..')
+  }.each { |deployment_stack|
 
-      # puts "============================="
-      # puts "DEBUG: DEPLOYMENT-STATEBUCKET"
-      # puts "============================="
-
-      t.backend_config = lambda do |args|
-        configuration
-            .for_overrides(args)
-            .for_scope(deployment: 'statebucket')
-            .backend_config
-      end
-      # puts "DEBUG: backend:"
-      # puts "---------------------------------------"
-      # puts "#{t.backend_config.call({}).to_yaml}"
-      # puts "---------------------------------------"
-
-      t.vars = lambda do |args|
-        configuration
-            .for_overrides(args)
-            .for_scope(deployment: 'statebucket')
-            .vars
-      end
-      # puts "DEBUG: tfvars:"
-      # puts "---------------------------------------"
-      # puts "#{t.vars.call({}).to_yaml}"
-      # puts "---------------------------------------"
-    end
-  end
-
-  namespace :cluster do
-    RakeTerraform.define_command_tasks do |t|
-      t.configuration_name = 'cluster'
-      t.source_directory = 'role-cluster/infra'
-      t.work_directory = 'build'
-
-      t.backend_config = lambda do |args|
-        configuration
-            .for_overrides(args)
-            .for_scope(role: 'cluster')
-            .backend_config
-      end
-
-      t.vars = lambda do |args|
-        configuration
-            .for_overrides(args)
-            .for_scope(role: 'cluster')
-            .vars
-      end
-    end
-  end
-
-  namespace :nginx do
-    RakeTerraform.define_command_tasks do |t|
-      t.configuration_name = 'nginx'
-      t.source_directory = 'role-nginx/infra'
-      t.work_directory = 'build'
-
-      t.backend_config = lambda do |args|
-        configuration
-            .for_overrides(args)
-            .for_scope(role: 'nginx')
-            .backend_config
-      end
-
-      t.vars = lambda do |args|
-        configuration
-            .for_overrides(
-                args.to_hash
-                    .merge(version_number: version.to_docker_tag))
-            .for_scope(role: 'nginx')
-            .vars
-      end
-
-      puts "DEBUG: tfvars:"
-      puts "---------------------------------------"
-      puts "#{t.vars.call({}).to_yaml}"
-      puts "---------------------------------------"
-
-    end
-  end
-
-end
-
-namespace :delivery do
-
-  namespace :statebucket do
-    RakeTerraform.define_command_tasks do |t|
-      t.configuration_name = 'delivery-statebucket'
-      t.source_directory = 'component/delivery-statebucket'
-      t.work_directory = 'build'
-
-      t.state_file = lambda do
-        Paths.from_project_root_directory('state', 'component-delivery', 'state_bucket.tfstate')
-      end
-
-      t.vars = lambda do |args|
-        configuration
-            .for_overrides(args)
-            .for_scope(delivery: 'statebucket')
-            .vars
-      end
-    end
-  end
-
-  namespace :nginx do
-    namespace :repository do
+    namespace deployment_stack do
       RakeTerraform.define_command_tasks do |t|
-        t.configuration_name = 'nginx-repository-delivery'
-        t.source_directory = 'role-nginx-repository-delivery/infra'
-        t.work_directory = 'build'
+        t.configuration_name = "deployment-#{deployment_stack}"
+        t.source_directory = "deployment/#{deployment_stack}/infra"
+        t.work_directory = 'work'
+
+        puts "============================="
+        puts "deployment/#{deployment_stack}"
+        puts "============================="
 
         t.backend_config = lambda do |args|
           configuration
               .for_overrides(args)
-              .for_scope(role_delivery: 'nginx-repository')
+              .for_scope(deployment: deployment_stack)
               .backend_config
         end
+        puts "backend:"
+        puts "---------------------------------------"
+        puts "#{t.backend_config.call({}).to_yaml}"
+        puts "---------------------------------------"
 
         t.vars = lambda do |args|
           configuration
               .for_overrides(args)
-              .for_scope(role_delivery: 'nginx-repository')
+              .for_scope(deployment: deployment_stack)
               .vars
         end
+        puts "tfvars:"
+        puts "---------------------------------------"
+        puts "#{t.vars.call({}).to_yaml}"
+        puts "---------------------------------------"
       end
+
     end
-  end
+  }
+end
+
+
+namespace :account do
+
+  Dir.entries('account').select { |entry|
+    File.directory? File.join('account',entry) and !(entry =='.' || entry == '..')
+  }.each { |account_stack|
+
+    namespace account_stack do
+      RakeTerraform.define_command_tasks do |t|
+        t.configuration_name = "account-#{account_stack}"
+        t.source_directory = "account/#{account_stack}/infra"
+        t.work_directory = 'work'
+
+        puts "============================="
+        puts "account/#{account_stack}"
+        puts "============================="
+
+        t.backend_config = lambda do |args|
+          configuration
+              .for_overrides(args)
+              .for_scope(account: account_stack)
+              .backend_config
+        end
+        puts "backend:"
+        puts "---------------------------------------"
+        puts "#{t.backend_config.call({}).to_yaml}"
+        puts "---------------------------------------"
+
+        t.vars = lambda do |args|
+          configuration
+              .for_overrides(args)
+              .for_scope(account: account_stack)
+              .vars
+        end
+        puts "tfvars:"
+        puts "---------------------------------------"
+        puts "#{t.vars.call({}).to_yaml}"
+        puts "---------------------------------------"
+      end
+
+    end
+  }
 end

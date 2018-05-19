@@ -3,3 +3,4 @@ vars:
   region: "%{hiera('region')}"
   state_bucket_name: "%{hiera('delivery_statebucket_name')}"
   component: "%{hiera('component')}"
+

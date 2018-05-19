@@ -1,0 +1,10 @@
+---
+vars:
+  component: "%{hiera('component')}"
+  domain_name: "%{hiera('domain_name')}"
+
+backend_config:
+  region: "%{hiera('region')}"
+  bucket: "%{hiera('deployment_statebucket_name')}"
+  key: "deployment-%{hiera('deployment_identifier')}/cluster.tfstate"
+  encrypt: "%{hiera('deployment_statebucket_is_encrypted')}"
