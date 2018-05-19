@@ -29,6 +29,10 @@ namespace :delivery do
   }.each { |delivery_stack|
 
     namespace delivery_stack do
+
+      stack_configuration = configuration
+        .for_scope(delivery: delivery_stack)
+
       RakeTerraform.define_command_tasks do |t|
         t.configuration_name = "delivery-#{delivery_stack}"
         t.source_directory = "delivery/#{delivery_stack}/infra"
@@ -38,15 +42,15 @@ namespace :delivery do
         puts "delivery/#{delivery_stack}"
         puts "============================="
 
-        t.backend_config = lambda do |args|
-          configuration
-              .for_overrides(args)
-              .for_scope(delivery: delivery_stack)
-              .backend_config
-        end
+        t.backend_config = {
+          :region => stack_configuration.region,
+          :bucket=> "delivery-state-#{stack_configuration.estate}-#{stack_configuration.component}",
+          :key => "state/#{delivery_stack}.tfstate",
+          :encrypt => "true"
+        }
         puts "backend:"
         puts "---------------------------------------"
-        puts "#{t.backend_config.call({}).to_yaml}"
+        puts "#{t.backend_config.to_yaml}"
         puts "---------------------------------------"
 
         t.vars = lambda do |args|
@@ -73,7 +77,12 @@ namespace :deployment do
   }.each { |deployment_stack|
 
     namespace deployment_stack do
+
+      stack_configuration = configuration
+        .for_scope(deployment: deployment_stack)
+
       RakeTerraform.define_command_tasks do |t|
+
         t.configuration_name = "deployment-#{deployment_stack}"
         t.source_directory = "deployment/#{deployment_stack}/infra"
         t.work_directory = 'work'
@@ -82,15 +91,15 @@ namespace :deployment do
         puts "deployment/#{deployment_stack}"
         puts "============================="
 
-        t.backend_config = lambda do |args|
-          configuration
-              .for_overrides(args)
-              .for_scope(deployment: deployment_stack)
-              .backend_config
-        end
+        t.backend_config = {
+          :region => stack_configuration.region,
+          :bucket=> "deployment-state-#{stack_configuration.estate}-#{stack_configuration.component}-#{stack_configuration.deployment_identifier}",
+          :key => "state/#{deployment_stack}.tfstate",
+          :encrypt => "true"
+        }
         puts "backend:"
         puts "---------------------------------------"
-        puts "#{t.backend_config.call({}).to_yaml}"
+        puts "#{t.backend_config.to_yaml}"
         puts "---------------------------------------"
 
         t.vars = lambda do |args|
@@ -117,6 +126,10 @@ namespace :account do
   }.each { |account_stack|
 
     namespace account_stack do
+
+      stack_configuration = configuration
+        .for_scope(account: account_stack)
+
       RakeTerraform.define_command_tasks do |t|
         t.configuration_name = "account-#{account_stack}"
         t.source_directory = "account/#{account_stack}/infra"
@@ -126,15 +139,16 @@ namespace :account do
         puts "account/#{account_stack}"
         puts "============================="
 
-        t.backend_config = lambda do |args|
-          configuration
-              .for_overrides(args)
-              .for_scope(account: account_stack)
-              .backend_config
-        end
+        t.backend_config = {
+          :region => stack_configuration.region,
+          :bucket=> "account-state-#{stack_configuration.estate}-#{stack_configuration.component}",
+          :key => "state/#{account_stack}.tfstate",
+          :encrypt => "true"
+        }
+
         puts "backend:"
         puts "---------------------------------------"
-        puts "#{t.backend_config.call({}).to_yaml}"
+        puts "#{t.backend_config.to_yaml}"
         puts "---------------------------------------"
 
         t.vars = lambda do |args|
