@@ -9,6 +9,7 @@
 :hierarchy:
   - "deployment/%{deployment}/stack"
   - "delivery/%{delivery}/stack"
+  - "delivery-%{delivery}/stack"
   - "account/%{account}/stack"
   - "component-local"
   - "component"

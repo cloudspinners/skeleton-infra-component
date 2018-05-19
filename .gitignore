@@ -25,11 +25,10 @@ run/logs/
 
 # Terraform
 .terraform
-*.tfstate
-*.tfstate.backup
+# *.tfstate
+# *.tfstate.backup
 
-# State bucket state
-state/
-*config/infra/local.yaml
 .git-crypt
+
+# Local configuration
 component-local.yaml

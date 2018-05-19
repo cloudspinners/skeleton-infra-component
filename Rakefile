@@ -8,6 +8,19 @@ require_relative 'lib/terraform_output'
 require_relative 'lib/version'
 
 configuration = Confidante.configuration
+
+delivery_statebucket = {
+  :region => configuration.region,
+  :bucket=> "delivery-state-#{configuration.estate}-#{configuration.component}",
+  :encrypt => "true"
+}
+
+deployment_statebucket = {
+  :region => configuration.region,
+  :bucket=> "deployment-state-#{configuration.estate}-#{configuration.component}-#{configuration.deployment_identifier}",
+  :encrypt => "true"
+}
+
 version = Version.from_file('build/version')
 
 RakeTerraform.define_installation_tasks(
@@ -30,9 +43,6 @@ namespace :delivery do
 
     namespace delivery_stack do
 
-      stack_configuration = configuration
-        .for_scope(delivery: delivery_stack)
-
       RakeTerraform.define_command_tasks do |t|
         t.configuration_name = "delivery-#{delivery_stack}"
         t.source_directory = "delivery/#{delivery_stack}/infra"
@@ -42,12 +52,9 @@ namespace :delivery do
         puts "delivery/#{delivery_stack}"
         puts "============================="
 
-        t.backend_config = {
-          :region => stack_configuration.region,
-          :bucket=> "delivery-state-#{stack_configuration.estate}-#{stack_configuration.component}",
-          :key => "state/#{delivery_stack}.tfstate",
-          :encrypt => "true"
-        }
+
+        t.backend_config = delivery_statebucket.clone
+        t.backend_config[:key] = "state/#{delivery_stack}.tfstate"
         puts "backend:"
         puts "---------------------------------------"
         puts "#{t.backend_config.to_yaml}"
@@ -67,6 +74,36 @@ namespace :delivery do
 
     end
   }
+
+  namespace :statebucket do
+
+    puts "============================="
+    puts "delivery/statebucket"
+    puts "============================="
+
+    RakeTerraform.define_command_tasks do |t|
+      t.configuration_name = 'delivery-statebucket'
+      t.source_directory = 'delivery-statebucket/infra'
+      t.work_directory = 'work'
+
+      t.state_file = lambda do
+        Paths.from_project_root_directory('state', 'delivery', 'statebucket', 'statebucket.tfstate')
+      end
+
+      t.vars = lambda do |args|
+        configuration
+            .for_overrides(args)
+            .for_scope(delivery: 'statebucket')
+            .vars
+      end
+      puts "statefile: #{t.state_file.call}"
+      puts "tfvars:"
+      puts "---------------------------------------"
+      puts "#{t.vars.call({}).to_yaml}"
+      puts "---------------------------------------"
+    end
+  end
+
 end
 
 
