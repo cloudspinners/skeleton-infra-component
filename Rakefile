@@ -6,6 +6,8 @@ require 'rake/clean'
 require_relative 'lib/paths'
 require_relative 'lib/terraform_output'
 require_relative 'lib/version'
+require_relative 'lib/secure_parameter'
+require_relative 'lib/key_maker'
 
 configuration = Confidante.configuration
 delivery_statebucket_name = "delivery-state-#{configuration.estate}-#{configuration.component}"
@@ -126,6 +128,19 @@ namespace :deployment do
           puts  "Need ssh keys:"
           stack_configuration.ssh_keys.each { |ssh_key_name|
             puts "  - #{ssh_key_name}"
+            secure_parameter_ssh_key_public = "/#{configuration.estate}/#{configuration.component}/#{deployment_stack}/#{configuration.deployment_identifier}/ssh_key/#{ssh_key_name}/public"
+            secure_parameter_ssh_key_private = "/#{configuration.estate}/#{configuration.component}/#{deployment_stack}/#{configuration.deployment_identifier}/ssh_key/#{ssh_key_name}/private"
+
+            public_key = SecureParameter.get_parameter(secure_parameter_ssh_key_public, configuration.region)
+            if public_key.nil? then
+              key = KeyMaker.make_key(ssh_key_name)
+              SecureParameter.put_parameter(secure_parameter_ssh_key_public, key[:public], configuration.region)
+              SecureParameter.put_parameter(secure_parameter_ssh_key_private, key[:private], configuration.region)
+              public_key = key[:public]
+            end
+            puts "Putting key into 'work/deployment/#{deployment_stack}/ssh_keys/#{ssh_key_name}.pub'"
+            mkpath "work/deployment/#{deployment_stack}/ssh_keys"
+            File.open("work/deployment/#{deployment_stack}/ssh_keys/#{ssh_key_name}.pub", 'w') {|f| f.write(public_key) }
           }
         end
 
