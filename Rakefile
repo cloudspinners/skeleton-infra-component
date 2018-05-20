@@ -183,7 +183,33 @@ namespace :deployment do
         puts "---------------------------------------"
       end
 
+      if Dir.exist? ("deployment/#{deployment_stack}/inspec")
+
+        desc 'Test things'
+        task :test do
+          mkpath "work/inspec"
+          File.open("work/inspec/attributes-deployment-#{deployment_stack}.yml", 'w') {|f| 
+            f.write({
+              'deployment_identifier' => configuration.deployment_identifier,
+              'component' => configuration.component,
+              'deployment_stack' => configuration.deployment_stack
+            }.to_yaml)
+          }
+
+          inspec_cmd = 
+            "inspec exec " \
+            "deployment/#{deployment_stack}/inspec " \
+            "-t aws:// " \
+            "--reporter json-rspec:work/inspec/results-deployment-#{deployment_stack}.json " \
+            "cli " \
+            "--attrs work/inspec/attributes-deployment-#{deployment_stack}.yml"
+          puts "INSPEC: #{inspec_cmd}"
+          system(inspec_cmd)
+        end
+      end
+
     end
+
   }
 end
 
