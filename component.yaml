@@ -1,7 +1,7 @@
 ---
 estate: cloudspin
 component: noodle
-domain_name: cloudspin.io
+domain_name: YOU_MUST_OVERRIDE_THIS
 region: eu-west-1
 
 # Cross-deployment things
