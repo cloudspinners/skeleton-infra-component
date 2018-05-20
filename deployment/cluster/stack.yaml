@@ -8,16 +8,12 @@ vars:
   private_domain_name: "%{hiera('private_domain_name')}"
   private_network_cidr: "%{hiera('private_network_cidr')}"
 
-  # This path is based on a convention. Would be better to have it added by the Rakefile
+  # The Rakefile needs to set this same path.
+  # I would prefer to have the Rakefile directly inject this, to avoid dependency on
+  # remembering to put the same path in multiple locations.
   cluster_instance_ssh_public_key_path: "../ssh_keys/cluster_instance_ssh_key.pub"
   cluster_instance_type: "t2.medium"
-
-  # state_bucket_name: "%{hiera('delivery_statebucket_name')}"
-  
 
 ssh_keys:
   - cluster_instance_ssh_key
 
-# secure_parameters:
-#   ssh_key_public:  "%{hiera('ssh_keys.cluster_instance_ssh_key_public')}"
-#   ssh_key_private: "/%{hiera('ssh_keys.cluster_instance_ssh_key_private')}"
