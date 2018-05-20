@@ -120,6 +120,19 @@ namespace :deployment do
       stack_configuration = configuration
         .for_scope(deployment: deployment_stack)
 
+      unless stack_configuration.ssh_keys.nil?
+        desc "Ensure ssh keys for #{deployment_stack}"
+        task :ssh_keys do
+          puts  "Need ssh keys:"
+          stack_configuration.ssh_keys.each { |ssh_key_name|
+            puts "  - #{ssh_key_name}"
+          }
+        end
+
+        task :plan => [ :ssh_keys ]
+        task :provision => [ :ssh_keys ]
+      end
+
       RakeTerraform.define_command_tasks do |t|
 
         t.configuration_name = "deployment-#{deployment_stack}"
