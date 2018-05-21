@@ -1,0 +1,5 @@
+name: cluster
+title: Controls for cluster resources
+summary: Check that cluster resources are properly provisioned
+version: 0.1.0
+description: Check that cluster resources are properly provisioned

@@ -1,0 +1,87 @@
+[
+  {
+    "name": "${web-name}",
+    "image": "${web-image}",
+    "memoryReservation": 512,
+    "essential": true,
+    "portMappings": [
+      {
+        "containerPort": 80,
+        "hostPort": 80
+      }
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "${log-group}",
+        "awslogs-region": "${region}",
+        "awslogs-stream-prefix": "awslogs-web"
+      }
+    },
+    "links": ["${api-name}:pod_api"],
+    "environment": [
+      { "name": "AWS_REGION", "value": "${region}" }
+    ]
+  },
+  {
+    "name": "${api-name}",
+    "image": "${api-image}",
+    "memoryReservation": 512,
+    "essential": true,
+    "portMappings": [
+      {
+        "containerPort": 8090,
+        "hostPort": 8090
+      }
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "${log-group}",
+        "awslogs-region": "${region}",
+        "awslogs-stream-prefix": "awslogs-api"
+      }
+    },
+    "links": ["${quorum-name}:pod_quorum"],
+    "environment": [
+      { "name": "AWS_REGION", "value": "${region}" }
+    ]
+  },
+  {
+    "name": "${quorum-name}",
+    "image": "${quorum-image}",
+    "memoryReservation": 1024,
+    "essential": true,
+    "portMappings": [],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "${log-group}",
+        "awslogs-region": "${region}",
+        "awslogs-stream-prefix": "awslogs-quorum"
+      }
+    },
+    "environment": [
+      { "name": "AWS_REGION", "value": "${region}" }
+    ]
+   },
+  {
+    "name": "${metrm-name}",
+    "image": "${metrm-image}",
+    "memoryReservation": 1024,
+    "essential": true,
+    "portMappings": [],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "${log-group}",
+        "awslogs-region": "${region}",
+        "awslogs-stream-prefix": "awslogs-metrm"
+      }
+    },
+    "links": ["${web-name}:pod_web"],
+    "environment": [
+      { "name": "AWS_REGION", "value": "${region}" }
+    ]
+  }
+]
