@@ -1,3 +1,20 @@
+PATH
+  remote: ../aws_ssh_key
+  specs:
+    aws_ssh_key (0.1.0)
+      aws-sdk (~> 2.11)
+
+PATH
+  remote: ../rake_cloudspin
+  specs:
+    rake_cloudspin (0.0.1)
+      aws_ssh_key
+      confidante
+      inspec
+      rake_dependencies
+      rake_fly
+      rake_terraform
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -8,13 +25,13 @@ GEM
       tzinfo (~> 1.1)
     addressable (2.5.2)
       public_suffix (>= 2.0.2, < 4.0)
-    aws-sdk (2.11.53)
-      aws-sdk-resources (= 2.11.53)
-    aws-sdk-core (2.11.53)
+    aws-sdk (2.11.69)
+      aws-sdk-resources (= 2.11.69)
+    aws-sdk-core (2.11.69)
       aws-sigv4 (~> 1.0)
       jmespath (~> 1.0)
-    aws-sdk-resources (2.11.53)
-      aws-sdk-core (= 2.11.53)
+    aws-sdk-resources (2.11.69)
+      aws-sdk-core (= 2.11.69)
     aws-sigv4 (1.0.2)
     azure_mgmt_resources (0.16.0)
       ms_rest_azure (~> 0.10.0)
@@ -33,17 +50,16 @@ GEM
       multi_json
     domain_name (0.5.20180417)
       unf (>= 0.0.5, < 1.0.0)
-    dotenv (2.4.0)
     erubis (2.7.0)
     excon (0.62.0)
-    faraday (0.15.1)
+    faraday (0.15.2)
       multipart-post (>= 1.2, < 3)
     faraday-cookie_jar (0.0.6)
       faraday (>= 0.7.4)
       http-cookie (~> 1.0.0)
     faraday_middleware (0.12.2)
       faraday (>= 0.7.4, < 1.0)
-    ffi (1.9.23)
+    ffi (1.9.25)
     google-api-client (0.19.8)
       addressable (~> 2.5, >= 2.5.1)
       googleauth (>= 0.5, < 0.7.0)
@@ -74,7 +90,7 @@ GEM
       google-cloud-translate (~> 1.2)
       google-cloud-video_intelligence (~> 1.0)
       google-cloud-vision (~> 0.28)
-    google-cloud-bigquery (1.4.0)
+    google-cloud-bigquery (1.5.0)
       concurrent-ruby (~> 1.0)
       google-api-client (~> 0.19.8)
       google-cloud-core (~> 1.2)
@@ -104,7 +120,7 @@ GEM
       google-cloud-core (~> 1.2)
       google-gax (~> 1.0)
       stackdriver-core (~> 1.3)
-    google-cloud-firestore (0.21.0)
+    google-cloud-firestore (0.21.1)
       concurrent-ruby (~> 1.0)
       google-cloud-core (~> 1.2)
       google-gax (~> 1.0)
@@ -118,7 +134,7 @@ GEM
       google-gax (~> 1.0)
     google-cloud-os_login (0.1.0)
       google-gax (~> 1.0.0)
-    google-cloud-pubsub (0.30.2)
+    google-cloud-pubsub (0.31.0)
       concurrent-ruby (~> 1.0)
       google-cloud-core (~> 1.2)
       google-gax (~> 1.0)
@@ -127,7 +143,7 @@ GEM
       google-api-client (~> 0.19.8)
       google-cloud-core (~> 1.2)
       googleauth (~> 0.6.2)
-    google-cloud-spanner (1.4.0)
+    google-cloud-spanner (1.5.0)
       concurrent-ruby (~> 1.0)
       google-cloud-core (~> 1.2)
       google-gax (~> 1.0)
@@ -196,7 +212,7 @@ GEM
     i18n (1.0.1)
       concurrent-ruby (~> 1.0)
     inifile (3.0.0)
-    inspec (2.1.83)
+    inspec (2.2.16)
       addressable (~> 2.4)
       faraday (>= 0.9.0)
       faraday_middleware (~> 0.12.2)
@@ -215,7 +231,7 @@ GEM
       sslshake (~> 1.2)
       thor (~> 0.20)
       tomlrb (~> 1.2)
-      train (~> 1.4.11)
+      train (~> 1.4, >= 1.4.15)
     jmespath (1.4.0)
     json (2.1.0)
     jwt (2.1.0)
@@ -239,7 +255,7 @@ GEM
       concurrent-ruby (~> 1.0)
       faraday (~> 0.9)
       timeliness (~> 0.3)
-    ms_rest_azure (0.10.7)
+    ms_rest_azure (0.10.8)
       concurrent-ruby (~> 1.0)
       faraday (~> 0.9)
       faraday-cookie_jar (~> 0.0.6)
@@ -263,9 +279,6 @@ GEM
       hamster (~> 3.0)
       minitar (~> 0.6)
       rubyzip (~> 1.1)
-    rake_docker (0.12.0)
-      aws-sdk (~> 2.10)
-      docker-api (~> 1.34)
     rake_fly (0.6.0)
       rake_dependencies (~> 0.15)
       ruby_fly (~> 0.4)
@@ -276,7 +289,7 @@ GEM
       declarative (< 0.1.0)
       declarative-option (< 0.2.0)
       uber (< 0.2.0)
-    retriable (3.1.1)
+    retriable (3.1.2)
     rly (0.2.3)
     rspec (3.7.0)
       rspec-core (~> 3.7.0)
@@ -294,13 +307,12 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.7.0)
     rspec-support (3.7.1)
-    ruby-terraform (0.11.2)
+    ruby-terraform (0.12.1)
       lino (~> 1.1)
     ruby_fly (0.4.1)
       lino (~> 1.1)
     rubyntlm (0.6.2)
     rubyzip (1.2.1)
-    semantic (1.6.1)
     semverse (2.0.0)
     signet (0.8.1)
       addressable (~> 2.3)
@@ -313,8 +325,8 @@ GEM
     thor (0.20.0)
     thread_safe (0.3.6)
     timeliness (0.3.8)
-    tomlrb (1.2.6)
-    train (1.4.11)
+    tomlrb (1.2.7)
+    train (1.4.15)
       aws-sdk (~> 2)
       azure_mgmt_resources (~> 0.15)
       docker-api (~> 1.26)
@@ -354,18 +366,9 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activesupport (~> 5.2)
-  confidante (~> 0.7)
-  docker-api (~> 1.34)
-  dotenv (~> 2.4)
-  inspec (~> 2.1, >= 2.1.83)
-  lino (~> 1.1)
-  rake (~> 12.3)
-  rake_dependencies (~> 0.15)
-  rake_docker (~> 0.12)
-  rake_fly (~> 0.6)
-  rake_terraform (~> 0.17)
-  semantic (~> 1.6.1)
+  aws_ssh_key!
+  rake
+  rake_cloudspin!
 
 BUNDLED WITH
    1.16.2
