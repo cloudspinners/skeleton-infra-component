@@ -4,6 +4,8 @@ gem 'rake', '~> 12.3'
 gem 'lino', '~> 1.1'
 gem 'rake_dependencies', '~> 0.15'
 gem 'rake_terraform', '~> 0.17'
+# gem 'rake_terraform', '~> 0.17', :git => 'https://github.com/kief/rake_terraform.git'
+
 gem 'rake_docker', '~> 0.12'
 gem 'rake_fly', '~> 0.6'
 gem 'confidante', '~> 0.7'

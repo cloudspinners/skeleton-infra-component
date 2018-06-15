@@ -5,6 +5,8 @@ domain_name: YOU_MUST_OVERRIDE_THIS
 region: eu-west-1
 version_number: 0.0.1
 
+cluster_name: main
+
 # Cross-deployment things
 # Brittle. Would be nice if I could figure out how to inject these from the Rakefile
 delivery_statebucket_name: "delivery-state-%{hiera('estate')}-%{hiera('component')}"

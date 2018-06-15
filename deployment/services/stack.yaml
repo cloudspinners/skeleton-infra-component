@@ -6,13 +6,16 @@ vars:
   estate: "%{hiera('estate')}"
   version_number: "%{hiera('version_number')}"
 
-  cluster_state_bucket_region: "%{hiera('region')}"
-  cluster_state_bucket_name: "%{hiera('deployment_statebucket_name')}"
-  cluster_state_bucket_is_encrypted: "%{hiera('deployment_statebucket_is_encrypted')}"
-  cluster_state_key: "state/deployment/#{configuration.deployment_identifier}/cluster.tfstate"
+  cluster_name: "%{hiera('cluster_name')}"
+  # cluster_state_bucket_region: "%{hiera('region')}"
+  # cluster_state_bucket_name: "%{hiera('deployment_statebucket_name')}"
+  # cluster_state_bucket_is_encrypted: "%{hiera('deployment_statebucket_is_encrypted')}"
+  # cluster_state_key: "state/deployment/#{configuration.deployment_identifier}/cluster.tfstate"
   
   nginx_image_repository_name: "%{hiera('estate')}/%{hiera('component')}/nginx"
 
   http_port: "80"
   ssh_port: "2222"
   private_network_cidr: "%{hiera('private_network_cidr')}"
+
+  nginx_desired_count: 1

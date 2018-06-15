@@ -6,6 +6,7 @@ variable "domain_name" {}
 variable "private_domain_name" {}
 variable "private_network_cidr" {}
 
+variable "cluster_name" {}
 variable "cluster_instance_ssh_public_key_path" {}
 variable "cluster_instance_type" {}
 

@@ -4,10 +4,12 @@ variable "deployment_identifier" {}
 variable "estate" {}
 variable "version_number" {}
 
-variable "cluster_state_bucket_region" {}
-variable "cluster_state_bucket_name" {}
-variable "cluster_state_bucket_is_encrypted" {}
-variable "cluster_state_key" {}
+variable "cluster_name" {}
+
+# variable "cluster_state_bucket_region" {}
+# variable "cluster_state_bucket_name" {}
+# variable "cluster_state_bucket_is_encrypted" {}
+# variable "cluster_state_key" {}
 
 variable "nginx_image_repository_name" {}
 
